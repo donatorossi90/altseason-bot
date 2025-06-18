@@ -1,33 +1,27 @@
-import requests
+import threading
 import time
-import os
+from telegram import Bot
+from telegram.ext import ApplicationBuilder, CommandHandler
 
-TOKEN = os.getenv("TELEGRAM_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+# === CONFIGURAZIONE ===
+BOT_TOKEN = "inserisci_il_tuo_token"
 
-def send_alert(message):
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    payload = {"chat_id": CHAT_ID, "text": message}
-    try:
-        requests.post(url, data=payload)
-    except:
-        pass
+# === FUNZIONE DI AVVIO BOT ===
+def start(update, context):
+    update.message.reply_text("Bot attivo!")
 
-def get_btc_dominance():
-    url = "https://api.coingecko.com/api/v3/global"
-    try:
-        data = requests.get(url).json()
-        return data["data"]["market_cap_percentage"]["btc"]
-    except:
-        return None
+def start_bot():
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    print("✅ Bot avviato!")
+    app.run_polling()
 
-def main():
+# === FINTA WEB SERVER PER RENDER ===
+def fake_web_server():
     while True:
-        dominance = get_btc_dominance()
-        if dominance and dominance < 50:
-            send_alert(f"⚠️ BTC Dominance in calo: {dominance:.2f}%")
-        time.sleep(3600)
+        time.sleep(60)
 
+# === AVVIO PARALLELO ===
 if __name__ == "__main__":
-    send_alert("✅ Bot avviato e monitoraggio iniziato.")
-    main()
+    threading.Thread(target=fake_web_server).start()
+    start_bot()
