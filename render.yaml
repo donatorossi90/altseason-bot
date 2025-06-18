@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: altseason-bot
+    env: python
+    buildCommand: ""
+    startCommand: python main.py
+    envVars:
+      - key: TELEGRAM_TOKEN
+        value: 8012268100:AAH4YWSlDcw8rF4VUpnKSY6f89og5bMah40
+      - key: CHAT_ID
+        value: 796837345
