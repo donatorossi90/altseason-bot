@@ -1,32 +1,32 @@
-import threading
-import time
 import os
-from telegram import Bot
-from telegram.ext import ApplicationBuilder, CommandHandler
+import threading
 from flask import Flask
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-# === Finta app Flask solo per tenere vivo Render ===
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return 'Bot attivo'
-
-def run_fake_web_server():
-    app.run(host='0.0.0.0', port=10000)  # porta finta
-
-# === Bot Telegram ===
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-def start(update, context):
-    update.message.reply_text("✅ Bot avviato!")
+# === BOT: comando /start
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("✅ Bot attivo!")
 
 def start_bot():
-    app_telegram = ApplicationBuilder().token(BOT_TOKEN).build()
-    app_telegram.add_handler(CommandHandler("start", start))
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
     print("Bot Telegram avviato")
-    app_telegram.run_polling()
+    app.run_polling()
 
+# === Finto web server per Render
+fake_app = Flask(__name__)
+
+@fake_app.route("/")
+def home():
+    return "Bot attivo (finta porta viva)"
+
+def run_fake_web():
+    fake_app.run(host="0.0.0.0", port=10000)
+
+# === Avvio parallelo
 if __name__ == "__main__":
-    threading.Thread(target=run_fake_web_server).start()
+    threading.Thread(target=run_fake_web).start()
     start_bot()
